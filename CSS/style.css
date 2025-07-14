@@ -52,7 +52,6 @@ body {
 header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
     margin-bottom: 30px;
     width: 100%;
     flex-direction: column;
