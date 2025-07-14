@@ -241,7 +241,8 @@ p {
     }
     .theme-toggle{
         top: 0;
-        margin-left: 15px;
+        right: 0;
+        left: unset;
     }
     .todo-item {
         padding: 10px;
