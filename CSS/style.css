@@ -242,6 +242,7 @@ p {
     }
     .theme-toggle{
         top: 0;
+        margin-left: 15px;
     }
     .todo-item {
         padding: 10px;
