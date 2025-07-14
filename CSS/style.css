@@ -73,9 +73,6 @@ h1 {
     transition: transform 0.2s;
 }
 
-.theme-toggle:hover {
-    transform: rotate(30deg);
-}
 
 .todo-form {
     display: flex;
