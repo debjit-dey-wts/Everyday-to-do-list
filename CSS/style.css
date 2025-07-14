@@ -58,14 +58,20 @@ header {
     flex-direction: column;
 }
 
+.heading-and-toggle{
+    display: flex;
+}
+
 h1 {
     color: var(--primary-color);
     font-size: 2rem;
+    text-align: center;
 }
 
 p {
     font-size: 15px;
     line-height: 25px;
+    text-align: center;
 }
 
 .theme-toggle {
