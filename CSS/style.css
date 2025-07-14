@@ -234,10 +234,15 @@ p {
 }
 
 @media (max-width: 480px) {
+    .container{
+        padding: 0;
+    }
     h1 {
         font-size: 1.5rem;
     }
-    
+    .theme-toggle{
+        top: 0;
+    }
     .todo-item {
         padding: 10px;
     }
