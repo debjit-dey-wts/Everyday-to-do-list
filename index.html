@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo Application</title>
+    <title>Todo App</title>
     <link rel="stylesheet" href="./CSS/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,184 +12,166 @@
 <body>
     <div class="container">
         <header>
-            <h1>Todo App</h1>
-            <p class="tagline">Organize your tasks efficiently</p>
+            <h1>My Todo List</h1>
+            <button class="theme-toggle" aria-label="Toggle dark mode">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8V16Z" fill="currentColor"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM12 4V8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16V20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4Z" fill="currentColor"/>
+                </svg>
+            </button>
         </header>
-
-        <form class="todo-form" id="todoForm">
-            <input 
-                type="text" 
-                class="todo-input" 
-                id="todoInput" 
-                placeholder="Add a new task..." 
-                aria-label="Add a new todo item"
-                required
-                autocomplete="off"
-            >
-            <button type="submit" class="add-btn" aria-label="Add todo">Add Task</button>
+        
+        <form class="todo-form">
+            <input type="text" class="todo-input" placeholder="Add a new task...">
+            <button type="submit" class="add-btn">Add</button>
         </form>
-
-        <select class="filter-todos" id="filterTodos" aria-label="Filter todos">
-            <option value="all">All</option>
-            <option value="completed">Completed</option>
-            <option value="uncompleted">Uncompleted</option>
-        </select>
-
-        <ul class="todo-list" id="todoList"></ul>
-
-        <div class="stats" id="stats"></div>
-    </div>
-
-    <div class="footer">
-        &copy; 2025 - All rights reserved. Debjit Dey
+        
+        <ul class="todo-list">
+            <!-- Todo items will be added here -->
+        </ul>
+        
+        <div class="empty-state">
+            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/135edda0-0d81-45fb-bc35-869174d4b5cc.png" alt="Illustration of a person relaxing with no tasks, symbolizing an empty todo list" />
+            <h2>No tasks yet</h2>
+            <p>Add your first task to get started!</p>
+        </div>
+        
+        <button class="clear-all">Clear All</button>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
-            const todoForm = document.getElementById('todoForm');
-            const todoInput = document.getElementById('todoInput');
-            const todoList = document.getElementById('todoList');
-            const filterTodos = document.getElementById('filterTodos');
-            const statsElement = document.getElementById('stats');
-
-            // Load todos from local storage
+            // DOM elements
+            const todoForm = document.querySelector('.todo-form');
+            const todoInput = document.querySelector('.todo-input');
+            const todoList = document.querySelector('.todo-list');
+            const clearAllBtn = document.querySelector('.clear-all');
+            const themeToggle = document.querySelector('.theme-toggle');
+            const emptyState = document.querySelector('.empty-state');
+            
+            // Load saved todos and theme from local storage
             let todos = JSON.parse(localStorage.getItem('todos')) || [];
-
+            let isDarkMode = localStorage.getItem('darkMode') === 'true';
+            
             // Initialize the app
-            function init() {
-                renderTodos();
-                updateStats();
-                
-                // Event Listeners
-                todoForm.addEventListener('submit', addTodo);
-                filterTodos.addEventListener('change', filterTodoHandler);
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
             }
-
-            // Add a new todo
+            renderTodos();
+            updateEmptyState();
+            
+            // Event listeners
+            todoForm.addEventListener('submit', addTodo);
+            clearAllBtn.addEventListener('click', clearAllTodos);
+            themeToggle.addEventListener('click', toggleTheme);
+            
+            // Add new todo
             function addTodo(e) {
                 e.preventDefault();
-                
                 const todoText = todoInput.value.trim();
                 
-                if (todoText) {
-                    const newTodo = {
+                if (todoText !== '') {
+                    const todo = {
                         id: Date.now(),
                         text: todoText,
                         completed: false
                     };
                     
-                    todos.push(newTodo);
+                    todos.push(todo);
                     saveTodos();
                     renderTodos();
-                    updateStats();
-                    
-                    // Clear input
                     todoInput.value = '';
-                    todoInput.focus();
+                    updateEmptyState();
                 }
             }
-
-            // Render todos based on filter
+            
+            // Render todos
             function renderTodos() {
-                const filterValue = filterTodos.value;
-                let filteredTodos = [];
-                
-                if (filterValue === 'all') {
-                    filteredTodos = todos;
-                } else if (filterValue === 'completed') {
-                    filteredTodos = todos.filter(todo => todo.completed);
-                } else if (filterValue === 'uncompleted') {
-                    filteredTodos = todos.filter(todo => !todo.completed);
-                }
-                
-                if (filteredTodos.length === 0) {
-                    todoList.innerHTML = `
-                        <div class="empty-state">
-                            <p>No tasks found. Add a new task above.</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
                 todoList.innerHTML = '';
                 
-                filteredTodos.forEach(todo => {
+                todos.forEach(todo => {
                     const todoItem = document.createElement('li');
-                    todoItem.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                    todoItem.classList.add('todo-item');
+                    if (todo.completed) {
+                        todoItem.classList.add('completed');
+                    }
+                    
                     todoItem.innerHTML = `
-                        <input 
-                            type="checkbox" 
-                            class="todo-checkbox" 
-                            ${todo.completed ? 'checked' : ''}
-                            aria-label="Mark task as ${todo.completed ? 'uncompleted' : 'completed'}"
-                            data-id="${todo.id}"
-                        >
-                        <span class="todo-text">${todo.text}</span>
-                        <button class="delete-btn" data-id="${todo.id}" aria-label="Delete task">
-                            Delete
+                        <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} data-id="${todo.id}">
+                        <span class="todo-text ${todo.completed ? 'completed' : ''}">${todo.text}</span>
+                        <button class="delete-btn" data-id="${todo.id}">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
                         </button>
                     `;
+                    
                     todoList.appendChild(todoItem);
                 });
                 
                 // Add event listeners to checkboxes and delete buttons
                 document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', toggleComplete);
+                    checkbox.addEventListener('change', toggleTodo);
                 });
                 
-                document.querySelectorAll('.delete-btn').forEach(button => {
-                    button.addEventListener('click', deleteTodo);
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', deleteTodo);
                 });
             }
-
+            
             // Toggle todo completion status
-            function toggleComplete(e) {
+            function toggleTodo(e) {
                 const todoId = parseInt(e.target.dataset.id);
-                todos = todos.map(todo => 
-                    todo.id === todoId ? {...todo, completed: !todo.completed} : todo
-                );
-                saveTodos();
-                renderTodos();
-                updateStats();
+                const todo = todos.find(todo => todo.id === todoId);
+                
+                if (todo) {
+                    todo.completed = e.target.checked;
+                    saveTodos();
+                    renderTodos();
+                }
             }
-
+            
             // Delete todo
             function deleteTodo(e) {
-                const todoId = parseInt(e.target.dataset.id);
+                const todoId = parseInt(e.target.closest('.delete-btn').dataset.id);
                 todos = todos.filter(todo => todo.id !== todoId);
                 saveTodos();
                 renderTodos();
-                updateStats();
+                updateEmptyState();
             }
-
-            // Filter todos
-            function filterTodoHandler() {
-                renderTodos();
+            
+            // Clear all todos
+            function clearAllTodos() {
+                if (todos.length > 0 && confirm('Are you sure you want to delete all tasks?')) {
+                    todos = [];
+                    saveTodos();
+                    renderTodos();
+                    updateEmptyState();
+                }
             }
-
-            // Update statistics
-            function updateStats() {
-                const totalTodos = todos.length;
-                const completedTodos = todos.filter(todo => todo.completed).length;
-                const uncompletedTodos = totalTodos - completedTodos;
-                
-                statsElement.innerHTML = `
-                    <p>
-                        Total: ${totalTodos} | 
-                        Completed: ${completedTodos} | 
-                        Uncompleted: ${uncompletedTodos}
-                    </p>
-                `;
+            
+            // Toggle dark/light theme
+            function toggleTheme() {
+                isDarkMode = !isDarkMode;
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', isDarkMode);
             }
-
+            
+            // Update empty state visibility
+            function updateEmptyState() {
+                if (todos.length === 0) {
+                    emptyState.style.display = 'block';
+                    clearAllBtn.style.display = 'none';
+                } else {
+                    emptyState.style.display = 'none';
+                    clearAllBtn.style.display = 'block';
+                }
+            }
+            
             // Save todos to local storage
             function saveTodos() {
                 localStorage.setItem('todos', JSON.stringify(todos));
             }
-
-            // Initialize the app
-            init();
         });
     </script>
 </body>
