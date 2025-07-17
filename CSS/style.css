@@ -110,6 +110,7 @@ p {
     box-shadow: 0px 15px 30px 4px rgba(74,111,165,0.48);
     -webkit-box-shadow: 0px 15px 30px 4px rgba(74,111,165,0.48);
     -moz-box-shadow: 0px 15px 30px 4px rgba(74,111,165,0.48);
+    transition: all 0.3s ease-in-out;
 }
 
 .add-btn {
